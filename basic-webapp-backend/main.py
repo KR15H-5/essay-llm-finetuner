@@ -52,6 +52,7 @@ def fetch_user_data(user_id):
 #     return {"received_number": number.value}
 @app.post("/fine-tune")
 async def fine_tune(number: Number):
+    print("Endpoint caught correctly")
     try:
         user_data = fetch_user_data(number.value)
         if not user_data:
