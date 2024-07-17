@@ -79,11 +79,7 @@ async def fine_tune(number: Number):
             print(f"Generated (after fine-tune): {completion}")
 
 
-            return {
-                "message": "Model fine-tuned successfully",
-                "model_adapter_id": new_model_adapter.id,
-                "generated_after": completion
-            }
+            return {"message": "Model fine-tuned successfully", "model_adapter_id": new_model_adapter.id}
     except Exception as e:
         print(f"Error: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
