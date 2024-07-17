@@ -33,7 +33,6 @@
         <input type="number" id="train-userID" placeholder="userID ">
         <button onclick="train()">Fine Tune</button>
     </div>
-    <div id="message"></div>
 
     <script>
         const SUPABASE_URL = 'https://qbhmbdwocbvnhsampfmm.supabase.co';
@@ -74,11 +73,8 @@
             });
 
             const result = await response.json();
-
-            // var message_area = document.getElementById('message');
-            // message_area.innerText = '${result.generated_after}'
+            console.log(result);
         }
-        
     </script>
 </body>
 </html>

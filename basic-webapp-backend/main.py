@@ -20,7 +20,7 @@ app = FastAPI()
 origins = [
     "http://127.0.0.1:5500",  # Your frontend origin
     "http://localhost:5500",
-    "https://essay-llm-finetuner.vercel.app/"   # Sometimes localhost is used
+    "https://essay-llm-finetuner.vercel.app"   # Sometimes localhost is used
 ]
 
 app.add_middleware(
@@ -52,7 +52,6 @@ def fetch_user_data(user_id):
 #     return {"received_number": number.value}
 @app.post("/fine-tune")
 async def fine_tune(number: Number):
-    print("Endpoint caught correctly")
     try:
         user_data = fetch_user_data(number.value)
         if not user_data:
@@ -77,7 +76,6 @@ async def fine_tune(number: Number):
 
             completion = new_model_adapter.complete(query=sample_query, max_generated_token_count=100).generated_output
             print(f"Generated (after fine-tune): {completion}")
-
 
             return {"message": "Model fine-tuned successfully", "model_adapter_id": new_model_adapter.id}
     except Exception as e:
