@@ -21,7 +21,7 @@ origins = [
     "http://127.0.0.1:5500",  # Your frontend origin
     "http://localhost:5500",
     "https://essay-llm-finetuner.vercel.app",   # Sometimes localhost is used
-    "https://essay-llm-finetuner.vercel.app",
+    "http://essay-llm-finetuner.vercel.app",
     "http://127.0.0.1:8000"
 ]
 
