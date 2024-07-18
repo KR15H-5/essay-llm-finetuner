@@ -70,18 +70,18 @@ async def fine_tune(number: Number):
             completion = new_model_adapter.complete(query=sample_query, max_generated_token_count=100).generated_output
             print(f"Generated (before fine-tune): {completion}")
 
-            # samples = [{"inputs": f"### Instruction: {record['prompt']} \n\n### Response: {record['content']}"} for record in user_data]
-            # num_epochs = 2
-            # for epoch in range(num_epochs):
-            #     print(f"Fine-tuning the model, iteration {epoch + 1}")
-            #     new_model_adapter.fine_tune(samples=samples)
+            samples = [{"inputs": f"### Instruction: {record['prompt']} \n\n### Response: {record['content']}"} for record in user_data]
+            num_epochs = 2
+            for epoch in range(num_epochs):
+                print(f"Fine-tuning the model, iteration {epoch + 1}")
+                new_model_adapter.fine_tune(samples=samples)
 
-            # completion_after = new_model_adapter.complete(query=sample_query, max_generated_token_count=100).generated_output
-            # print(f"Generated (after fine-tune): {completion_after}")
+            completion_after = new_model_adapter.complete(query=sample_query, max_generated_token_count=100).generated_output
+            print(f"Generated (after fine-tune): {completion_after}")
 
             return {
                 "message": "Model fine-tuned successfully",
-                "completion": completion
+                "completion": completion_after
             }
 
     except Exception as e:
