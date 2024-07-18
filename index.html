@@ -37,6 +37,8 @@
     <script>
         const SUPABASE_URL = 'https://qbhmbdwocbvnhsampfmm.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFiaG1iZHdvY2J2bmhzYW1wZm1tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjExMjM4NzIsImV4cCI6MjAzNjY5OTg3Mn0.-bF1bcBAkawL5eXeN5gjJuP4FdAqL4W2Cvtk4_g2aSE';
+        const BACKEND_URL = 'https://juicy-boa-essay-llm-finetuner-13be60c5.koyeb.app';  // Your Koyeb backend URL
+
 
         async function fineTune() {
             const essay = {
@@ -64,7 +66,7 @@
         async function train() {
             const number = document.getElementById('train-userID').value;
 
-            const response = await fetch('juicy-boa-essay-llm-finetuner-13be60c5.koyeb.app/fine-tune', {
+            const response = await fetch(`${BACKEND_URL}/fine-tune`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
