@@ -76,10 +76,14 @@ async def fine_tune(number: Number):
                 print(f"Fine-tuning the model, iteration {epoch + 1}")
                 new_model_adapter.fine_tune(samples=samples)
 
-            completion = new_model_adapter.complete(query=sample_query, max_generated_token_count=100).generated_output
-            print(f"Generated (after fine-tune): {completion}")
+            completion_after = new_model_adapter.complete(query=sample_query, max_generated_token_count=100).generated_output
+            print(f"Generated (after fine-tune): {completion_after}")
 
-            return {"message": "Model fine-tuned successfully", "model_adapter_id": new_model_adapter.id}
+            return {
+                "message": "Model fine-tuned successfully",
+                "completion": completion_after
+            }
+
     except Exception as e:
         print(f"Error: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")

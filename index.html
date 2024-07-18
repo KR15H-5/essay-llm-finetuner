@@ -33,6 +33,7 @@
         <input type="number" id="train-userID" placeholder="userID ">
         <button onclick="train()">Fine Tune</button>
     </div>
+    <div id="message"></div>
 
     <script>
         const SUPABASE_URL = 'https://qbhmbdwocbvnhsampfmm.supabase.co';
@@ -76,6 +77,7 @@
 
             const result = await response.json();
             console.log(result);
+            document.getElementById('message').innerText = `Model fine-tuned successfully\nGenerated: ${result.completion}`;
         }
     </script>
 </body>
