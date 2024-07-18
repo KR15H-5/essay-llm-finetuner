@@ -65,7 +65,7 @@
         }
         async function train() {
             const number = document.getElementById('train-userID').value;
-
+            console.log(`Sending request to: ${BACKEND_URL}/fine-tune`);
             const response = await fetch(`${BACKEND_URL}/fine-tune`, {
                 method: 'POST',
                 headers: {
