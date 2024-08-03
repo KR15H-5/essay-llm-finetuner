@@ -98,10 +98,22 @@ async def fine_tune(number: Number):
 async def generate(request: GenerateRequest):
     try:
         model_name = f"model_for_{request.user_id}"
-        print("Using model :"+ model_name)
+        print(f"Looking for model adapter with name: {model_name}")
         
         with Gradient() as gradient:
-            model_adapter = gradient.get_model_adapter(model_adapter_id=model_name)
+            # List all models and find the one matching the model name
+            models = gradient.list_models()
+            model_adapter_id = None
+            for model in models:
+                if model.name == model_name:
+                    model_adapter_id = model.id
+                    break
+            
+            if not model_adapter_id:
+                raise HTTPException(status_code=404, detail="Model adapter not found")
+            
+            # Access the model adapter using the found ID
+            model_adapter = gradient.get_model_adapter(model_adapter_id=model_adapter_id)
             completion = model_adapter.complete(query=request.prompt, max_generated_token_count=500).generated_output
 
         return {"generated_text": completion}
@@ -109,6 +121,7 @@ async def generate(request: GenerateRequest):
     except Exception as e:
         print(f"Error: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
+
     
 
 if __name__ == "__main__":
