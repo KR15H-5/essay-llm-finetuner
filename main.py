@@ -22,7 +22,8 @@ origins = [
     "http://localhost:5500",
     "https://essay-llm-finetuner.vercel.app",   # Sometimes localhost is used
     "http://essay-llm-finetuner.vercel.app",
-    "http://127.0.0.1:8000"
+    "http://127.0.0.1:8000",
+    "https://finetune.krishshroff.com"
 ]
 
 app.add_middleware(
@@ -35,6 +36,11 @@ app.add_middleware(
 
 class Number(BaseModel):
     value: int
+
+
+class GenerateRequest(BaseModel):
+    user_id: int
+    prompt: str
 
 
 def fetch_user_data(user_id):
@@ -64,29 +70,45 @@ async def fine_tune(number: Number):
             new_model_adapter = base_model.create_model_adapter(name=f"model_for_{number.value}")
 
             sample_query = "### Instruction: Write an 300 word essay about AI impact on the world? \n\n### Response:"
-            print(f"Asking: {sample_query}")
+            # print(f"Asking: {sample_query}")
 
-            # before fine-tuning
-            completion = new_model_adapter.complete(query=sample_query, max_generated_token_count=100).generated_output
-            print(f"Generated (before fine-tune): {completion}")
+            # # before fine-tuning
+            # completion = new_model_adapter.complete(query=sample_query, max_generated_token_count=100).generated_output
+            # print(f"Generated (before fine-tune): {completion}")
 
             samples = [{"inputs": f"### Instruction: {record['prompt']} \n\n### Response: {record['content']}"} for record in user_data]
-            num_epochs = 2
+            num_epochs = 3
             for epoch in range(num_epochs):
                 print(f"Fine-tuning the model, iteration {epoch + 1}")
                 new_model_adapter.fine_tune(samples=samples)
 
             completion_after = new_model_adapter.complete(query=sample_query, max_generated_token_count=100).generated_output
             print(f"Generated (after fine-tune): {completion_after}")
-
+           
             return {
-                "message": "Model fine-tuned successfully",
-                "completion": completion_after
+                "message": "Model fine-tuned successfully with model number " + str(number.value),
             }
 
     except Exception as e:
         print(f"Error: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
+    
+
+@app.post("/generate")
+async def generate(request: GenerateRequest):
+    try:
+        model_name = f"model_for_{request.user_id}"
+        
+        with Gradient() as gradient:
+            model_adapter = gradient.get_model_adapter(model_name=model_name)
+            completion = model_adapter.complete(query=request.prompt, max_generated_token_count=100).generated_output
+
+        return {"generated_text": completion}
+
+    except Exception as e:
+        print(f"Error: {e}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+    
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000, log_level="debug")

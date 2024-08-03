@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Basic Web App</title>
+    <title>AI Fine-Tuning and Generation</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -19,27 +19,35 @@
     </style>
 </head>
 <body>
-    <h1>Basic Web App</h1>
+    <h1>AI Fine-Tuning and Generation</h1>
 
     <div>
-        <h2>Fine-Tune</h2>
-        <textarea id="fine-tune-userid" placeholder="userID"></textarea>
+        <h2>Add to Knowledge Base</h2>
+        <textarea id="fine-tune-userid" placeholder="User ID"></textarea>
         <input type="text" id="fine-tune-prompt" placeholder="Prompt">
         <textarea id="fine-tune-response" placeholder="Response"></textarea>
-        <button onclick="fineTune()">Train the model on this essay</button>
+        <button onclick="fineTune()">Add Essay</button>
     </div>
 
     <div>
-        <input type="number" id="train-userID" placeholder="userID ">
-        <button onclick="train()">Fine Tune</button>
+        <h2>Train the Model</h2>
+        <input type="number" id="train-userID" placeholder="User ID">
+        <button onclick="train()">Train</button>
     </div>
+
+    <div>
+        <h2>Generate Result</h2>
+        <input type="number" id="generate-userID" placeholder="User ID">
+        <textarea id="generate-prompt" placeholder="Prompt"></textarea>
+        <button onclick="getResult()">Get Result</button>
+    </div>
+
     <div id="message"></div>
 
     <script>
         const SUPABASE_URL = 'https://qbhmbdwocbvnhsampfmm.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFiaG1iZHdvY2J2bmhzYW1wZm1tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjExMjM4NzIsImV4cCI6MjAzNjY5OTg3Mn0.-bF1bcBAkawL5eXeN5gjJuP4FdAqL4W2Cvtk4_g2aSE';
-        const BACKEND_URL = 'https://juicy-boa-essay-llm-finetuner-13be60c5.koyeb.app';  // Your Koyeb backend URL
-
+        const BACKEND_URL = 'https://your-backend-url.com';  // Replace with your backend URL
 
         async function fineTune() {
             const essay = {
@@ -64,9 +72,9 @@
                 alert('Error storing data');
             }
         }
+
         async function train() {
             const number = document.getElementById('train-userID').value;
-            console.log(`Sending request to: ${BACKEND_URL}/fine-tune`);
             const response = await fetch(`${BACKEND_URL}/fine-tune`, {
                 method: 'POST',
                 headers: {
@@ -75,9 +83,31 @@
                 body: JSON.stringify({ value: parseInt(number) })
             });
 
-            const result = await response.json();
-            console.log(result);
-            document.getElementById('message').innerText = `Model fine-tuned successfully\nGenerated: ${result.completion}`;
+            if (response.ok) {
+                const result = await response.json();
+                document.getElementById('message').innerText = `Model fine-tuned successfully for user ID ${number}.`;
+            } else {
+                document.getElementById('message').innerText = 'Error fine-tuning the model.';
+            }
+        }
+
+        async function getResult() {
+            const userId = document.getElementById('generate-userID').value;
+            const prompt = document.getElementById('generate-prompt').value;
+            const response = await fetch(`${BACKEND_URL}/generate`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ user_id: parseInt(userId), prompt })
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                document.getElementById('message').innerText = `Generated: ${result.generated_text}`;
+            } else {
+                document.getElementById('message').innerText = 'Error generating the result.';
+            }
         }
     </script>
 </body>
