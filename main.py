@@ -82,8 +82,8 @@ async def fine_tune(number: Number):
                 print(f"Fine-tuning the model, iteration {epoch + 1}")
                 new_model_adapter.fine_tune(samples=samples)
 
-            completion_after = new_model_adapter.complete(query=sample_query, max_generated_token_count=100).generated_output
-            print(f"Generated (after fine-tune): {completion_after}")
+            # completion_after = new_model_adapter.complete(query=sample_query, max_generated_token_count=100).generated_output
+            # print(f"Generated (after fine-tune): {completion_after}")
            
             return {
                 "message": "Model fine-tuned successfully with model number " + str(number.value),
@@ -98,10 +98,11 @@ async def fine_tune(number: Number):
 async def generate(request: GenerateRequest):
     try:
         model_name = f"model_for_{request.user_id}"
+        print("Using model :"+ model_name)
         
         with Gradient() as gradient:
-            model_adapter = gradient.get_model_adapter(model_name=model_name)
-            completion = model_adapter.complete(query=request.prompt, max_generated_token_count=100).generated_output
+            model_adapter = gradient.get_model_adapter(model_adapter_id=model_name)
+            completion = model_adapter.complete(query=request.prompt, max_generated_token_count=500).generated_output
 
         return {"generated_text": completion}
 
