@@ -16,7 +16,7 @@ supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 # GradientAI setup
 os.environ['GRADIENT_ACCESS_TOKEN'] = "6w1HNB22pCDR9axSYkRFp8NWFe5zjXRT"
 os.environ['GRADIENT_WORKSPACE_ID'] = "81a704a0-fa72-484c-a188-aaf4f4083be8_workspace"
-MODEL_ADAPTERS_FILE = 'essay-llm-finetuner/model_adapters.json'
+MODEL_ADAPTERS_FILE = 'model_adapters.json'
 
 app = FastAPI()
 
