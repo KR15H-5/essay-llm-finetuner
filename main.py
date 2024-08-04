@@ -5,6 +5,8 @@ from gradientai import Gradient
 from supabase import create_client, Client
 import os
 import uvicorn
+import json
+
 
 # Supabase setup
 SUPABASE_URL = "https://qbhmbdwocbvnhsampfmm.supabase.co"
@@ -14,6 +16,7 @@ supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 # GradientAI setup
 os.environ['GRADIENT_ACCESS_TOKEN'] = "6w1HNB22pCDR9axSYkRFp8NWFe5zjXRT"
 os.environ['GRADIENT_WORKSPACE_ID'] = "81a704a0-fa72-484c-a188-aaf4f4083be8_workspace"
+MODEL_ADAPTERS_FILE = 'essay-llm-finetuner/model_adapters.json'
 
 app = FastAPI()
 
@@ -49,7 +52,10 @@ def fetch_user_data(user_id):
     #     raise HTTPException(status_code=response.status_code, detail=response.json().get('message', 'Error fetching data from Supabase'))
     return response.data
 
-
+model_adapters = {}
+def save_model_adapters():
+    with open(MODEL_ADAPTERS_FILE, 'w') as f:
+        json.dump(model_adapters, f)
 # @app.post("/fine-tune")
 # async def process_number(number: Number):
 #     print(f"Received number: {number.value}")
@@ -68,6 +74,10 @@ async def fine_tune(number: Number):
         with Gradient() as gradient:
             base_model = gradient.get_base_model(base_model_slug="nous-hermes2")
             new_model_adapter = base_model.create_model_adapter(name=f"model_for_{number.value}")
+            adapter_id = new_model_adapter.id
+            model_adapters[f"model_for_{number.value}"] = adapter_id
+
+            save_model_adapters()
 
             sample_query = "### Instruction: Write an 300 word essay about AI impact on the world? \n\n### Response:"
             # print(f"Asking: {sample_query}")
@@ -101,16 +111,18 @@ async def generate(request: GenerateRequest):
         print(f"Looking for model adapter with name: {model_name}")
         
         with Gradient() as gradient:
-            # List all models and find the one matching the model name
-            models = gradient.list_models()
-            model_adapter_id = None
-            for model in models:
-                if model.name == model_name:
-                    model_adapter_id = model.id
-                    break
-            
-            if not model_adapter_id:
-                raise HTTPException(status_code=404, detail="Model adapter not found")
+            model_name = f"model_for_{request.user_id}"
+            print(f"Looking for model adapter with name: {model_name}")
+
+            # Load model adapters dictionary from the file
+            if os.path.exists(MODEL_ADAPTERS_FILE):
+                with open(MODEL_ADAPTERS_FILE, 'r') as f:
+                    model_adapters = json.load(f)
+            else:
+                raise HTTPException(status_code=404, detail="Model adapters file not found")
+
+            # Retrieve the adapter ID
+            model_adapter_id = model_adapters.get(model_name)
             
             # Access the model adapter using the found ID
             model_adapter = gradient.get_model_adapter(model_adapter_id=model_adapter_id)
