@@ -1,5 +1,5 @@
 from fastapi import FastAPI, HTTPException, Request
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 from fastapi.middleware.cors import CORSMiddleware
 from gradientai import Gradient
 from supabase import create_client, Client
@@ -45,6 +45,10 @@ class GenerateRequest(BaseModel):
     user_id: int
     prompt: str
 
+class UserEmail(BaseModel):
+    user_id: EmailStr
+
+
 
 def fetch_user_data(user_id):
     response = supabase.table("essay-data").select("*").eq("userid", user_id).execute()
@@ -65,17 +69,17 @@ def save_model_adapters():
 #     #     raise HTTPException(status_code=404, detail="No data found for the given user ID")
 #     return {"received_number": number.value}
 @app.post("/fine-tune")
-async def fine_tune(number: Number):
+async def fine_tune(user_email: UserEmail):
     try:
-        user_data = fetch_user_data(number.value)
+        user_data = fetch_user_data(user_email.user_id)
         if not user_data:
             raise HTTPException(status_code=404, detail="No data found for the given user ID")
 
         with Gradient() as gradient:
             base_model = gradient.get_base_model(base_model_slug="nous-hermes2")
-            new_model_adapter = base_model.create_model_adapter(name=f"model_for_{number.value}")
+            new_model_adapter = base_model.create_model_adapter(name=f"model_for_{user_email.user_id}")
             adapter_id = new_model_adapter.id
-            model_adapters[f"model_for_{number.value}"] = adapter_id
+            model_adapters[f"model_for_{user_email.user_id}"] = adapter_id
 
             save_model_adapters()
 
@@ -96,7 +100,7 @@ async def fine_tune(number: Number):
             # print(f"Generated (after fine-tune): {completion_after}")
            
             return {
-                "message": "Model fine-tuned successfully with model number " + str(number.value),
+                "message": "Model fine-tuned successfully with model number " + str(user_email.user_id),
             }
 
     except Exception as e:
