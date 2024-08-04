@@ -134,7 +134,18 @@ async def generate(request: GenerateRequest):
         print(f"Error: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
-    
+@app.get("/view-model-adapters")
+async def view_model_adapters():
+    try:
+        if os.path.exists(MODEL_ADAPTERS_FILE):
+            with open(MODEL_ADAPTERS_FILE, 'r') as f:
+                model_adapters = json.load(f)
+            return model_adapters
+        else:
+            raise HTTPException(status_code=404, detail="Model adapters file not found")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000, log_level="debug")
