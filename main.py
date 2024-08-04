@@ -42,7 +42,7 @@ class Number(BaseModel):
 
 
 class GenerateRequest(BaseModel):
-    user_id: int
+    user_id: EmailStr
     prompt: str
 
 class UserEmail(BaseModel):
